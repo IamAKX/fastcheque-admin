@@ -1,16 +1,17 @@
 # fastcheque_admin
 
-A new Flutter project.
+Fastcheque Admin
 
-## Getting Started
+## [Visit Website here](https://fastcheque-eadf9.firebaseapp.com/#/)
 
-This project is a starting point for a Flutter application.
+## Screenshot
 
-A few resources to get you started if this is your first Flutter project:
+<img width="1552" alt="Screenshot 2021-07-27 at 10 19 38 PM" src="https://user-images.githubusercontent.com/17857031/127195312-3714992b-595a-4836-83c1-a28fb9c4f9cf.png">
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+<img width="1552" alt="Screenshot 2021-07-27 at 10 22 20 PM" src="https://user-images.githubusercontent.com/17857031/127195503-7b6a1f4f-925e-4c5d-b53b-bb7cab5e0b78.png">
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<img width="1552" alt="Screenshot 2021-07-27 at 10 22 31 PM" src="https://user-images.githubusercontent.com/17857031/127195572-4aa22ab8-2be6-4351-93c7-f3cd01385df6.png">
+
+<img width="1552" alt="Screenshot 2021-07-27 at 10 22 34 PM" src="https://user-images.githubusercontent.com/17857031/127195599-0c0245a4-f68b-4472-a76f-fd0994446ea7.png">
+
+<img width="1552" alt="Screenshot 2021-07-27 at 10 22 25 PM" src="https://user-images.githubusercontent.com/17857031/127195553-7ab4e4bd-eaa9-4271-ac60-3485f4734e6c.png">
