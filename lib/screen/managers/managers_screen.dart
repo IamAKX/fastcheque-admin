@@ -132,9 +132,19 @@ class _ManagersScreenState extends State<ManagersScreen> {
             SizedBox(
               height: defaultPadding * 2,
             ),
-            Text(
-              'All Managers',
-              style: Theme.of(context).textTheme.subtitle1,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'All Managers',
+                  style: Theme.of(context).textTheme.subtitle1,
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: Icon(Icons.file_download),
+                  label: Text('Download CSV'),
+                ),
+              ],
             ),
             SizedBox(
               height: defaultPadding,
