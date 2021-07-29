@@ -2,39 +2,93 @@ import 'dart:convert';
 
 class StoreModel {
   String id;
-  String name;
-  String email;
+  String printerEmail;
+  String routingAccountNumber;
+  String bankAccountNumber;
+  String bankName;
+  String businessName;
+  String businessAddress;
+  String businessPhone;
+  String chequeSequenceNumber;
+  String bankLogoUrl;
+  String businessLogoUrl;
+  String businessEmail;
   StoreModel({
     required this.id,
-    required this.name,
-    required this.email,
+    required this.printerEmail,
+    required this.routingAccountNumber,
+    required this.bankAccountNumber,
+    required this.bankName,
+    required this.businessName,
+    required this.businessAddress,
+    required this.businessPhone,
+    required this.chequeSequenceNumber,
+    required this.bankLogoUrl,
+    required this.businessLogoUrl,
+    required this.businessEmail,
   });
 
   StoreModel copyWith({
     String? id,
-    String? name,
-    String? email,
+    String? printerEmail,
+    String? routingAccountNumber,
+    String? bankAccountNumber,
+    String? bankName,
+    String? businessName,
+    String? businessAddress,
+    String? businessPhone,
+    String? chequeSequenceNumber,
+    String? bankLogoUrl,
+    String? businessLogoUrl,
+    String? businessEmail,
   }) {
     return StoreModel(
       id: id ?? this.id,
-      name: name ?? this.name,
-      email: email ?? this.email,
+      printerEmail: printerEmail ?? this.printerEmail,
+      routingAccountNumber: routingAccountNumber ?? this.routingAccountNumber,
+      bankAccountNumber: bankAccountNumber ?? this.bankAccountNumber,
+      bankName: bankName ?? this.bankName,
+      businessName: businessName ?? this.businessName,
+      businessAddress: businessAddress ?? this.businessAddress,
+      businessPhone: businessPhone ?? this.businessPhone,
+      chequeSequenceNumber: chequeSequenceNumber ?? this.chequeSequenceNumber,
+      bankLogoUrl: bankLogoUrl ?? this.bankLogoUrl,
+      businessLogoUrl: businessLogoUrl ?? this.businessLogoUrl,
+      businessEmail: businessEmail ?? this.businessEmail,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'name': name,
-      'email': email,
+      'printerEmail': printerEmail,
+      'routingAccountNumber': routingAccountNumber,
+      'bankAccountNumber': bankAccountNumber,
+      'bankName': bankName,
+      'businessName': businessName,
+      'businessAddress': businessAddress,
+      'businessPhone': businessPhone,
+      'chequeSequenceNumber': chequeSequenceNumber,
+      'bankLogoUrl': bankLogoUrl,
+      'businessLogoUrl': businessLogoUrl,
+      'businessEmail': businessEmail,
     };
   }
 
   factory StoreModel.fromMap(Map<String, dynamic> map) {
     return StoreModel(
       id: map['id'],
-      name: map['name'],
-      email: map['email'],
+      printerEmail: map['printerEmail'],
+      routingAccountNumber: map['routingAccountNumber'],
+      bankAccountNumber: map['bankAccountNumber'],
+      bankName: map['bankName'],
+      businessName: map['businessName'],
+      businessAddress: map['businessAddress'],
+      businessPhone: map['businessPhone'],
+      chequeSequenceNumber: map['chequeSequenceNumber'],
+      bankLogoUrl: map['bankLogoUrl'],
+      businessLogoUrl: map['businessLogoUrl'],
+      businessEmail: map['businessEmail'],
     );
   }
 
@@ -44,7 +98,9 @@ class StoreModel {
       StoreModel.fromMap(json.decode(source));
 
   @override
-  String toString() => 'StoreModel(id: $id, name: $name, email: $email)';
+  String toString() {
+    return 'StoreModel(id: $id, printerEmail: $printerEmail, routingAccountNumber: $routingAccountNumber, bankAccountNumber: $bankAccountNumber, bankName: $bankName, businessName: $businessName, businessAddress: $businessAddress, businessPhone: $businessPhone, chequeSequenceNumber: $chequeSequenceNumber, bankLogoUrl: $bankLogoUrl, businessLogoUrl: $businessLogoUrl, businessEmail: $businessEmail)';
+  }
 
   @override
   bool operator ==(Object other) {
@@ -52,10 +108,32 @@ class StoreModel {
 
     return other is StoreModel &&
         other.id == id &&
-        other.name == name &&
-        other.email == email;
+        other.printerEmail == printerEmail &&
+        other.routingAccountNumber == routingAccountNumber &&
+        other.bankAccountNumber == bankAccountNumber &&
+        other.bankName == bankName &&
+        other.businessName == businessName &&
+        other.businessAddress == businessAddress &&
+        other.businessPhone == businessPhone &&
+        other.chequeSequenceNumber == chequeSequenceNumber &&
+        other.bankLogoUrl == bankLogoUrl &&
+        other.businessLogoUrl == businessLogoUrl &&
+        other.businessEmail == businessEmail;
   }
 
   @override
-  int get hashCode => id.hashCode ^ name.hashCode ^ email.hashCode;
+  int get hashCode {
+    return id.hashCode ^
+        printerEmail.hashCode ^
+        routingAccountNumber.hashCode ^
+        bankAccountNumber.hashCode ^
+        bankName.hashCode ^
+        businessName.hashCode ^
+        businessAddress.hashCode ^
+        businessPhone.hashCode ^
+        chequeSequenceNumber.hashCode ^
+        bankLogoUrl.hashCode ^
+        businessLogoUrl.hashCode ^
+        businessEmail.hashCode;
+  }
 }

@@ -66,8 +66,8 @@ List<TransationModel> TRANSACTION_LIST = [
 ];
 
 List<StoreModel> STORE_LIST = [
-  StoreModel(id: '1', name: 'Store 1', email: 'store1@email.com'),
-  StoreModel(id: '2', name: 'Store 2', email: 'store2@email.com'),
-  StoreModel(id: '3', name: 'Store 3', email: 'store3@email.com'),
-  StoreModel(id: '4', name: 'Store 4', email: 'store4@email.com'),
+  // StoreModel(id: '1', name: 'Store 1', email: 'store1@email.com'),
+  // StoreModel(id: '2', name: 'Store 2', email: 'store2@email.com'),
+  // StoreModel(id: '3', name: 'Store 3', email: 'store3@email.com'),
+  // StoreModel(id: '4', name: 'Store 4', email: 'store4@email.com'),
 ];

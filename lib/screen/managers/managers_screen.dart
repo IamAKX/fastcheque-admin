@@ -37,7 +37,7 @@ class _ManagersScreenState extends State<ManagersScreen> {
         DropdownMenuItem(
           value: m,
           child: Text(
-            m.name,
+            'test',
             style: TextStyle(color: secondaryColor),
           ),
         ),
