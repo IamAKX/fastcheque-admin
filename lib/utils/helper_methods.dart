@@ -35,3 +35,18 @@ getChequeSequenceStringFromManager(ManagerModel manager) {
   }
   return seq.join(', ');
 }
+
+getStoreDetailOfManager(ManagerModel manager) {
+  List<String> seq = [];
+  for (StoreModel model in manager.taggedStores) {
+    String tmp = '';
+    tmp += 'Name    ${model.businessName}\n';
+    tmp += 'Email     ${model.businessEmail}\n';
+    tmp += 'Printer   ${model.printerEmail}\n';
+    tmp += 'Seq No   ${model.chequeSequenceNumber}\n';
+    tmp += 'Phone    ${model.businessPhone}\n';
+
+    seq.add(tmp);
+  }
+  return seq.join('\n');
+}

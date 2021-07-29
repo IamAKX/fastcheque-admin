@@ -327,7 +327,9 @@ class _ManagersScreenState extends State<ManagersScreen> {
                               child: Row(
                                 children: [
                                   IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      showMangerDetailsPopup(manager, context);
+                                    },
                                     color: Colors.blue,
                                     icon: Icon(Icons.visibility),
                                   ),
@@ -378,6 +380,104 @@ class _ManagersScreenState extends State<ManagersScreen> {
             )
           ],
         ),
+      ),
+    );
+  }
+
+  void showMangerDetailsPopup(ManagerModel manager, BuildContext context) {
+    Widget okButton = TextButton(
+      child: Text(
+        "Dismiss",
+        style: Theme.of(context).textTheme.button,
+      ),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(
+        "Manager Details",
+        style: Theme.of(context).textTheme.headline5,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ManagerDetailRow(
+            value: manager.name,
+            name: 'Name',
+          ),
+          ManagerDetailRow(
+            value: manager.email,
+            name: 'Email',
+          ),
+          ManagerDetailRow(
+            value: getStoreDetailOfManager(manager),
+            name: 'Tagged stores',
+          ),
+          ManagerDetailRow(
+            value: manager.id,
+            name: 'User ID',
+          ),
+          ManagerDetailRow(
+            value: manager.isPasswordTemporary ? 'Yes' : 'No',
+            name: 'Temporary Password',
+          ),
+          ManagerDetailRow(
+            value: manager.isProfileActive ? 'Yes' : 'No',
+            name: 'Status',
+          ),
+        ],
+      ),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return alert;
+      },
+    );
+  }
+}
+
+class ManagerDetailRow extends StatelessWidget {
+  final String name;
+  final String value;
+  const ManagerDetailRow({
+    Key? key,
+    required this.name,
+    required this.value,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              name,
+              style: Theme.of(context).textTheme.subtitle2,
+            ),
+          ),
+          SizedBox(
+            width: defaultPadding * 3,
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: Theme.of(context).textTheme.subtitle2,
+            ),
+          ),
+        ],
       ),
     );
   }
