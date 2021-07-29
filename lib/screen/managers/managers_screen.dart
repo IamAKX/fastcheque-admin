@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fastcheque_admin/model/manager_model.dart';
 import 'package:fastcheque_admin/model/store_model.dart';
 import 'package:fastcheque_admin/service/firestore_service.dart';
@@ -26,15 +27,47 @@ class _ManagersScreenState extends State<ManagersScreen> {
   TextEditingController _emailCtrl = TextEditingController();
   TextEditingController _searchCtrl = TextEditingController();
   List<StoreModel> _allStoreLocally = [];
+
   List<StoreModel> _selectedStore = [];
   final _multiSelectKey = GlobalKey<FormFieldState>();
   List<MultiSelectItem<StoreModel>> _dropDownList = [];
+  List<ManagerModel> _allManagerList = [];
+  List<ManagerModel> _allManagerListCopy = [];
+
   @override
   void initState() {
     // TODO: implement initState
 
     super.initState();
     loadAllStore();
+
+    loadAllManagers();
+
+    _searchCtrl.addListener(() async {
+      if (_searchCtrl.text.isEmpty) {
+        _allManagerList.clear();
+        _allManagerList.addAll(_allManagerListCopy);
+      } else {
+        _allManagerList.removeWhere((element) => !(element.name
+                .toLowerCase()
+                .contains(_searchCtrl.text.toLowerCase()) ||
+            element.email
+                .toLowerCase()
+                .contains(_searchCtrl.text.toLowerCase())));
+      }
+      setState(() {});
+    });
+  }
+
+  Future<void> loadAllManagers() async {
+    _allManagerList.clear();
+    _allManagerListCopy.clear();
+    _searchCtrl.text = '';
+    FireStoreService.instance.readAllManagers().then((list) {
+      _allManagerList.addAll(list);
+      _allManagerListCopy.addAll(list);
+      setState(() {});
+    });
   }
 
   Future<void> loadAllStore() async {
@@ -161,11 +194,13 @@ class _ManagersScreenState extends State<ManagersScreen> {
                       userType: DatabaseConstants.USERS_TYPE_MANAGER,
                       taggedStores: _selectedStore);
 
-                  await FireStoreService.instance.createManager(model);
-                  setState(() {
-                    _nameCtrl.text = '';
-                    _emailCtrl.text = '';
-                  });
+                  await FireStoreService.instance.createManager(model).then(
+                        (value) => setState(() {
+                          loadAllManagers();
+                          _nameCtrl.text = '';
+                          _emailCtrl.text = '';
+                        }),
+                      );
                 }
               },
               child: Text('Create'),
@@ -252,7 +287,7 @@ class _ManagersScreenState extends State<ManagersScreen> {
                         ),
                       ],
                     ),
-                    for (var i = 0; i < 10; i++) ...{
+                    for (ManagerModel manager in _allManagerList) ...{
                       TableRow(
                         decoration: BoxDecoration(
                           border: Border(
@@ -264,25 +299,26 @@ class _ManagersScreenState extends State<ManagersScreen> {
                           TableCell(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text('U_000$i'),
+                              child: Text(manager.id),
                             ),
                           ),
                           TableCell(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text('Name $i'),
+                              child: Text(manager.name),
                             ),
                           ),
                           TableCell(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text('Email $i'),
+                              child: Text(manager.email),
                             ),
                           ),
                           TableCell(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text('Store $i'),
+                              child: Text(
+                                  getChequeSequenceStringFromManager(manager)),
                             ),
                           ),
                           TableCell(
@@ -299,14 +335,33 @@ class _ManagersScreenState extends State<ManagersScreen> {
                                     width: defaultPadding,
                                   ),
                                   Switch(
-                                    value: i % 2 == 0,
-                                    onChanged: (value) {},
+                                    value: manager.isProfileActive,
+                                    onChanged: (status) async {
+                                      await FireStoreService.instance
+                                          .toggleManagerSuspension(
+                                              manager, status)
+                                          .then((value) {
+                                        _allManagerList
+                                            .firstWhere((element) =>
+                                                element.id == manager.id)
+                                            .isProfileActive = status;
+                                        setState(() {});
+                                      });
+                                    },
                                   ),
                                   SizedBox(
                                     width: defaultPadding,
                                   ),
                                   IconButton(
-                                    onPressed: () {},
+                                    onPressed: () async {
+                                      await FireStoreService.instance
+                                          .deleteManager(manager)
+                                          .then((value) {
+                                        setState(() {
+                                          loadAllManagers();
+                                        });
+                                      });
+                                    },
                                     color: Colors.red,
                                     icon: Icon(Icons.person_remove_sharp),
                                   ),

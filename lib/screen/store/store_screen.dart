@@ -1,17 +1,14 @@
 import 'dart:html';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fastcheque_admin/model/store_model.dart';
 import 'package:fastcheque_admin/service/firestore_service.dart';
 import 'package:fastcheque_admin/utils/color.dart';
 import 'package:fastcheque_admin/utils/constants.dart';
-import 'package:fastcheque_admin/utils/database_constants.dart';
 import 'package:fastcheque_admin/utils/validation.dart';
 import 'package:fastcheque_admin/widgets/custom_text_field.dart';
 import 'package:fastcheque_admin/widgets/header.dart';
 import 'package:fastcheque_admin/widgets/responsive.dart';
 import 'package:firebase/firebase.dart';
-import 'package:firebase/firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:sn_progress_dialog/progress_dialog.dart';
@@ -44,6 +41,7 @@ class _StoreScreenState extends State<StoreScreen> {
   final int UPLOAD_BANK_LOGO = 1;
   final int UPLOAD_BUSINESS_LOGO = 2;
   List<StoreModel> _allStoreLocally = [];
+  List<StoreModel> _allStoreLocallyCopy = [];
 
   selectImageFile(int uploadType) async {
     FileUploadInputElement uploadInput = FileUploadInputElement();
@@ -103,9 +101,14 @@ class _StoreScreenState extends State<StoreScreen> {
   }
 
   Future<void> loadAllStore() async {
+    _allStoreLocally.clear();
+    _allStoreLocallyCopy.clear();
+    _searchCtrl.text = '';
     FireStoreService.instance.readAllStore().then((list) {
-      _allStoreLocally.addAll(list);
-      setState(() {});
+      setState(() {
+        _allStoreLocally.addAll(list);
+        _allStoreLocallyCopy.addAll(list);
+      });
     });
   }
 
@@ -114,29 +117,21 @@ class _StoreScreenState extends State<StoreScreen> {
     // TODO: implement initState
     super.initState();
     _searchCtrl.addListener(() async {
-      _allStoreLocally.clear();
-      await FirebaseFirestore.instance
-          .collection(DatabaseConstants.STORE_COLLECTION)
-          .snapshots()
-          .listen((event) {
-        event.docs.forEach((element) {
-          StoreModel model = StoreModel.fromMap(element.data());
-          if (_searchCtrl.text.isEmpty)
-            _allStoreLocally.add(model);
-          else {
-            if (model.businessName
-                    .toLowerCase()
-                    .contains(_searchCtrl.text.toLowerCase()) ||
-                model.printerEmail
-                    .toLowerCase()
-                    .contains(_searchCtrl.text.toLowerCase()) ||
-                model.chequeSequenceNumber
-                    .toLowerCase()
-                    .contains(_searchCtrl.text.toLowerCase()))
-              _allStoreLocally.add(model);
-          }
-        });
-        setState(() {});
+      setState(() {
+        if (_searchCtrl.text.isEmpty) {
+          _allStoreLocally.clear();
+          _allStoreLocally.addAll(_allStoreLocallyCopy);
+        } else {
+          _allStoreLocally.removeWhere((element) => !(element.businessName
+                  .toLowerCase()
+                  .contains(_searchCtrl.text.toLowerCase()) ||
+              element.printerEmail
+                  .toLowerCase()
+                  .contains(_searchCtrl.text.toLowerCase()) ||
+              element.chequeSequenceNumber
+                  .toLowerCase()
+                  .contains(_searchCtrl.text.toLowerCase())));
+        }
       });
     });
     loadAllStore();
@@ -329,22 +324,28 @@ class _StoreScreenState extends State<StoreScreen> {
                             [_bankLogoLink, _businessLogoLink]) &&
                         checkValidEmail(_businessEmailCtrl.text) &&
                         checkValidEmail(_printerEmailCtrl.text)) {
-                      FireStoreService.instance.createStore(
-                        StoreModel(
-                          id: '',
-                          chequeSequenceNumber: _chequeSequenceCtrl.text,
-                          printerEmail: _printerEmailCtrl.text,
-                          routingAccountNumber: _routingAccNumberCtrl.text,
-                          bankAccountNumber: _bankAccNumberCtrl.text,
-                          bankName: _bankNameCtrl.text,
-                          businessName: _businessNameCtrl.text,
-                          businessAddress: _businessAddressCtrl.text,
-                          businessPhone: _businessPhoneCtrl.text,
-                          bankLogoUrl: _bankLogoLink,
-                          businessLogoUrl: _businessLogoLink,
-                          businessEmail: _businessEmailCtrl.text,
-                        ),
-                      );
+                      await FireStoreService.instance
+                          .createStore(
+                            StoreModel(
+                              id: '',
+                              chequeSequenceNumber: _chequeSequenceCtrl.text,
+                              printerEmail: _printerEmailCtrl.text,
+                              routingAccountNumber: _routingAccNumberCtrl.text,
+                              bankAccountNumber: _bankAccNumberCtrl.text,
+                              bankName: _bankNameCtrl.text,
+                              businessName: _businessNameCtrl.text,
+                              businessAddress: _businessAddressCtrl.text,
+                              businessPhone: _businessPhoneCtrl.text,
+                              bankLogoUrl: _bankLogoLink,
+                              businessLogoUrl: _businessLogoLink,
+                              businessEmail: _businessEmailCtrl.text,
+                            ),
+                          )
+                          .then(
+                            (value) => setState(() {
+                              loadAllStore();
+                            }),
+                          );
                       _chequeSequenceCtrl.text = '';
                       _printerEmailCtrl.text = '';
                       _routingAccNumberCtrl.text = '';
@@ -602,7 +603,12 @@ class _StoreScreenState extends State<StoreScreen> {
                                   IconButton(
                                     onPressed: () {
                                       FireStoreService.instance
-                                          .deleteStore(store);
+                                          .deleteStore(store)
+                                          .then((value) {
+                                        setState(() {
+                                          loadAllStore();
+                                        });
+                                      });
                                     },
                                     color: Colors.red,
                                     icon: Icon(Icons.delete),

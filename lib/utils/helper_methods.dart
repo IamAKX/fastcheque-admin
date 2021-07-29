@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'dart:html';
 
+import 'package:fastcheque_admin/model/manager_model.dart';
+import 'package:fastcheque_admin/model/store_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -24,4 +26,12 @@ showToast(String msg) {
       backgroundColor: secondaryColor,
       textColor: Colors.white,
       fontSize: 16.0);
+}
+
+getChequeSequenceStringFromManager(ManagerModel manager) {
+  List<String> seq = [];
+  for (StoreModel model in manager.taggedStores) {
+    seq.add(model.chequeSequenceNumber);
+  }
+  return seq.join(', ');
 }

@@ -11,16 +11,16 @@ class FireStoreService {
     _firestore = FirebaseFirestore.instance;
   }
 
-  createStore(StoreModel model) async {
-    _firestore
+  Future<void> createStore(StoreModel model) async {
+    await _firestore
         .collection(DatabaseConstants.STORE_COLLECTION)
         .get()
-        .then((querySnapshot) {
+        .then((querySnapshot) async {
       if (querySnapshot.docs.isEmpty) {
         DocumentReference document =
             _firestore.collection(DatabaseConstants.STORE_COLLECTION).doc();
         model.id = document.id;
-        document.set(model.toMap()).then((value) {
+        await document.set(model.toMap()).then((value) {
           showToast('Store added successfully');
           return;
         });
@@ -41,7 +41,7 @@ class FireStoreService {
         DocumentReference document =
             _firestore.collection(DatabaseConstants.STORE_COLLECTION).doc();
         model.id = document.id;
-        document
+        await document
             .set(model.toMap())
             .then((value) => showToast('Store added successfully'));
       } else
@@ -65,31 +65,31 @@ class FireStoreService {
     return list;
   }
 
-  updateStore(StoreModel model) async {
+  Future<void> updateStore(StoreModel model) async {
     DocumentReference document =
         _firestore.collection(DatabaseConstants.STORE_COLLECTION).doc(model.id);
 
-    document.update(model.toMap()).then((value) {
+    await document.update(model.toMap()).then((value) {
       showToast('Store updated successfully');
     }).catchError((error) => showToast('Error : $error'));
   }
 
-  deleteStore(StoreModel model) {
+  Future<void> deleteStore(StoreModel model) async {
     DocumentReference document =
         _firestore.collection(DatabaseConstants.STORE_COLLECTION).doc(model.id);
-    document
+    await document
         .delete()
         .then((value) => showToast('Store deleted successfully'))
         .catchError((error) => showToast('Error : $error'));
   }
 
-  createManager(ManagerModel model) async {
+  Future<void> createManager(ManagerModel model) async {
     print('model.taggedStores = ${model.toMap()}');
     if (model.taggedStores.length == 0) {
       showToast('Select atlease 1 store');
       return;
     }
-    _firestore
+    await _firestore
         .collection(DatabaseConstants.USERS_COLLECTION)
         .where('email', isEqualTo: model.email)
         .get()
@@ -125,12 +125,21 @@ class FireStoreService {
     return list;
   }
 
-  toggleManagerSuspension(ManagerModel model, bool status) async {
+  Future<void> toggleManagerSuspension(ManagerModel model, bool status) async {
     DocumentReference document =
         _firestore.collection(DatabaseConstants.USERS_COLLECTION).doc(model.id);
 
-    document.update({'isProfileActive': status}).then((value) {
+    await document.update({'isProfileActive': status}).then((value) {
       showToast('${model.name} is ${status ? 'activated' : 'deactivated'}');
     }).catchError((error) => showToast('Error : $error'));
+  }
+
+  Future<void> deleteManager(ManagerModel model) async {
+    DocumentReference document =
+        _firestore.collection(DatabaseConstants.USERS_COLLECTION).doc(model.id);
+    await document
+        .delete()
+        .then((value) => showToast('Manager deleted successfully'))
+        .catchError((error) => showToast('Error : $error'));
   }
 }
