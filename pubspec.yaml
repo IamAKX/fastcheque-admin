@@ -25,13 +25,13 @@ dependencies:
     sdk: flutter
   cloud_firestore: ^2.4.0
   cupertino_icons: ^1.0.2
-  dropdown_below: ^0.0.9
   firebase: ^9.0.1
   firebase_storage: ^10.0.1
   fluttertoast: ^8.0.7
   google_fonts: ^2.1.0
   sn_progress_dialog: ^1.0.2
   url_launcher: ^6.0.9
+  multi_select_flutter: ^4.0.0
 
 dev_dependencies:
   flutter_test:

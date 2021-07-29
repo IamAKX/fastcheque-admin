@@ -1,12 +1,15 @@
-import 'package:dropdown_below/dropdown_below.dart';
 import 'package:fastcheque_admin/model/store_model.dart';
+import 'package:fastcheque_admin/service/firestore_service.dart';
 import 'package:fastcheque_admin/utils/color.dart';
 import 'package:fastcheque_admin/utils/constants.dart';
-import 'package:fastcheque_admin/utils/static_data.dart';
 import 'package:fastcheque_admin/widgets/custom_text_field.dart';
 import 'package:fastcheque_admin/widgets/header.dart';
 import 'package:fastcheque_admin/widgets/responsive.dart';
 import 'package:flutter/material.dart';
+import 'package:multi_select_flutter/chip_field/multi_select_chip_field.dart';
+import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:multi_select_flutter/util/multi_select_item.dart';
 
 class ManagersScreen extends StatefulWidget {
   const ManagersScreen({Key? key}) : super(key: key);
@@ -19,42 +22,33 @@ class _ManagersScreenState extends State<ManagersScreen> {
   TextEditingController _nameCtrl = TextEditingController();
   TextEditingController _emailCtrl = TextEditingController();
   TextEditingController _searchCtrl = TextEditingController();
-  StoreModel _selectedStore = STORE_LIST.first;
-
-  List<DropdownMenuItem> _dropdownStoreItems = [];
-
+  List<StoreModel> _allStoreLocally = [];
+  List<StoreModel?> _selectedStore = [];
+  final _multiSelectKey = GlobalKey<FormFieldState>();
+  List<MultiSelectItem<StoreModel>> _dropDownList = [];
   @override
   void initState() {
     // TODO: implement initState
-    _dropdownStoreItems = buildDropdownTestItems(STORE_LIST);
+
     super.initState();
+    loadAllStore();
   }
 
-  List<DropdownMenuItem> buildDropdownTestItems(List<StoreModel> _testList) {
-    List<DropdownMenuItem> items = [];
-    for (StoreModel m in _testList) {
-      items.add(
-        DropdownMenuItem(
-          value: m,
-          child: Text(
-            'test',
-            style: TextStyle(color: secondaryColor),
-          ),
-        ),
-      );
-    }
-    return items;
-  }
-
-  onChangeDropdownTests(selectedStore) {
-    print(selectedStore);
-    setState(() {
-      _selectedStore = selectedStore;
+  Future<void> loadAllStore() async {
+    FireStoreService.instance.readAllStore().then((list) {
+      _allStoreLocally.addAll(list);
+      _selectedStore = list;
+      _dropDownList = _allStoreLocally
+          .map((store) =>
+              MultiSelectItem<StoreModel>(store, store.chequeSequenceNumber))
+          .toList();
+      setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
     return SafeArea(
       child: SingleChildScrollView(
         padding: EdgeInsets.all(defaultPadding),
@@ -90,37 +84,63 @@ class _ManagersScreenState extends State<ManagersScreen> {
                   nameCtrl: _emailCtrl,
                   hint: 'Email',
                 ),
-                DropdownBelow(
-                  itemWidth: 600,
-                  itemTextstyle: TextStyle(color: Colors.white),
-                  boxTextstyle: Theme.of(context)
-                      .textTheme
-                      .subtitle2
-                      ?.copyWith(color: Colors.white),
-                  boxPadding: EdgeInsets.fromLTRB(13, 12, 0, 12),
-                  boxHeight: 50,
-                  boxWidth: 600,
-                  icon: Padding(
-                    padding: const EdgeInsets.only(
-                      right: 10,
-                    ),
-                    child: Icon(Icons.keyboard_arrow_down),
-                  ),
-                  style: TextStyle(color: Colors.white),
-                  boxDecoration: BoxDecoration(
-                    color: primaryColor,
-                    borderRadius: BorderRadius.circular(2),
-                    border: Border.all(color: Colors.white54),
-                  ),
-                  hint: Text(
-                    'Select Store',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  value: _selectedStore,
-                  items: _dropdownStoreItems,
-                  onChanged: onChangeDropdownTests,
-                ),
               ],
+            ),
+            SizedBox(
+              height: defaultPadding,
+            ),
+            Container(
+              width: Responsive.isMobile(context)
+                  ? width
+                  : ((width * 5 / 6) -
+                          defaultPadding -
+                          defaultPadding -
+                          defaultPadding) /
+                      2,
+              child: MultiSelectDialogField(
+                key: _multiSelectKey,
+                items: _dropDownList,
+                height: MediaQuery.of(context).size.height * 0.75,
+                itemsTextStyle: Theme.of(context).textTheme.subtitle1,
+                searchable: true,
+                selectedItemsTextStyle: Theme.of(context)
+                    .textTheme
+                    .subtitle1
+                    ?.copyWith(color: primaryColor),
+                title: Text('Select store'),
+                buttonText: Text('Select store'),
+                chipDisplay: MultiSelectChipDisplay(
+                  textStyle: Theme.of(context).textTheme.subtitle2,
+                ),
+                backgroundColor: secondaryColor,
+                cancelText: Text(
+                  'Cancel',
+                  style: Theme.of(context).textTheme.button,
+                ),
+                confirmText: Text(
+                  'Done',
+                  style: Theme.of(context).textTheme.button,
+                ),
+                initialValue: _selectedStore,
+                decoration: BoxDecoration(
+                  color: secondaryColor,
+                  borderRadius: BorderRadius.circular(2),
+                  border: Border.all(
+                    color: Colors.white54,
+                  ),
+                ),
+                selectedColor: primaryColor,
+                unselectedColor: Colors.white,
+                onSelectionChanged: (list) {
+                  _selectedStore.clear();
+                  list.forEach((element) {
+                    _selectedStore.add(element as StoreModel);
+                  });
+                },
+                onConfirm: (list) {
+                  setState(() {});
+                },
+              ),
             ),
             SizedBox(
               height: defaultPadding,
