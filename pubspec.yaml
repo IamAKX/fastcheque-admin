@@ -28,7 +28,6 @@ dependencies:
   dropdown_below: ^0.0.9
   firebase: ^9.0.1
   firebase_storage: ^10.0.1
-  flutter_svg: ^0.22.0
   fluttertoast: ^8.0.7
   google_fonts: ^2.1.0
   sn_progress_dialog: ^1.0.2
@@ -37,7 +36,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_native_splash: ^1.2.0
 
+flutter_native_splash:
+  image: assets/images/logo_256.png
+  color: "#212332"
+  web_image_mode: center
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 # The following section is specific to Flutter.

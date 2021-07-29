@@ -11,24 +11,24 @@ List<DashboardMetricsModel> DASHBOARD_METIC_LIST = [
   DashboardMetricsModel(
     color: Colors.green,
     name: 'Users',
-    svgSrc: 'assets/svg/user.svg',
+    svgSrc: 'assets/svg/user.png',
     count: 18,
   ),
   DashboardMetricsModel(
     color: Colors.blue,
     name: 'Transcations',
-    svgSrc: 'assets/svg/transfer.svg',
+    svgSrc: 'assets/svg/transfer.png',
     count: 76,
   ),
   DashboardMetricsModel(
       color: Colors.yellow,
       name: 'Business Units',
-      svgSrc: 'assets/svg/store.svg',
+      svgSrc: 'assets/svg/store.png',
       count: 3),
   DashboardMetricsModel(
       color: Colors.red,
       name: 'Approval Request',
-      svgSrc: 'assets/svg/notification.svg',
+      svgSrc: 'assets/svg/notification.png',
       count: 5),
 ];
 

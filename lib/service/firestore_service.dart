@@ -65,41 +65,11 @@ class FireStoreService {
   }
 
   updateStore(StoreModel model) async {
-    _firestore
-        .collection(DatabaseConstants.STORE_COLLECTION)
-        .get()
-        .then((querySnapshot) {
-      if (querySnapshot.docs.isEmpty) {
-        DocumentReference document = _firestore
-            .collection(DatabaseConstants.STORE_COLLECTION)
-            .doc(model.id);
+    DocumentReference document =
+        _firestore.collection(DatabaseConstants.STORE_COLLECTION).doc(model.id);
 
-        document.update(model.toMap()).then((value) {
-          showToast('Store updated successfully');
-          return;
-        });
-      }
-      bool isInvalidEntry = false;
-      querySnapshot.docs.forEach((querySnapshot) {
-        StoreModel store = StoreModel.fromMap(querySnapshot.data());
-        if (store.printerEmail == model.printerEmail) {
-          isInvalidEntry = true;
-        }
-        if (store.chequeSequenceNumber == model.chequeSequenceNumber) {
-          isInvalidEntry = true;
-        }
-      });
-      if (!isInvalidEntry) {
-        DocumentReference document = _firestore
-            .collection(DatabaseConstants.STORE_COLLECTION)
-            .doc(model.id);
-
-        document
-            .update(model.toMap())
-            .then((value) => showToast('Store updated successfully'))
-            .catchError((error) => showToast('Error : $error'));
-      } else
-        showToast('Error : Identical buisness email or cheque sequence.');
+    document.update(model.toMap()).then((value) {
+      showToast('Store updated successfully');
     }).catchError((error) => showToast('Error : $error'));
   }
 
