@@ -1,12 +1,15 @@
+import 'package:fastcheque_admin/model/manager_model.dart';
 import 'package:fastcheque_admin/model/store_model.dart';
 import 'package:fastcheque_admin/service/firestore_service.dart';
 import 'package:fastcheque_admin/utils/color.dart';
 import 'package:fastcheque_admin/utils/constants.dart';
+import 'package:fastcheque_admin/utils/database_constants.dart';
+import 'package:fastcheque_admin/utils/helper_methods.dart';
+import 'package:fastcheque_admin/utils/validation.dart';
 import 'package:fastcheque_admin/widgets/custom_text_field.dart';
 import 'package:fastcheque_admin/widgets/header.dart';
 import 'package:fastcheque_admin/widgets/responsive.dart';
 import 'package:flutter/material.dart';
-import 'package:multi_select_flutter/chip_field/multi_select_chip_field.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
@@ -23,7 +26,7 @@ class _ManagersScreenState extends State<ManagersScreen> {
   TextEditingController _emailCtrl = TextEditingController();
   TextEditingController _searchCtrl = TextEditingController();
   List<StoreModel> _allStoreLocally = [];
-  List<StoreModel?> _selectedStore = [];
+  List<StoreModel> _selectedStore = [];
   final _multiSelectKey = GlobalKey<FormFieldState>();
   List<MultiSelectItem<StoreModel>> _dropDownList = [];
   @override
@@ -37,7 +40,7 @@ class _ManagersScreenState extends State<ManagersScreen> {
   Future<void> loadAllStore() async {
     FireStoreService.instance.readAllStore().then((list) {
       _allStoreLocally.addAll(list);
-      _selectedStore = list;
+
       _dropDownList = _allStoreLocally
           .map((store) =>
               MultiSelectItem<StoreModel>(store, store.chequeSequenceNumber))
@@ -146,7 +149,25 @@ class _ManagersScreenState extends State<ManagersScreen> {
               height: defaultPadding,
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                if (checkAllMandatoryFields([_nameCtrl, _emailCtrl]) &&
+                    checkValidEmail(_emailCtrl.text)) {
+                  ManagerModel model = ManagerModel(
+                      id: '',
+                      name: _nameCtrl.text,
+                      email: _emailCtrl.text,
+                      isProfileActive: true,
+                      isPasswordTemporary: true,
+                      userType: DatabaseConstants.USERS_TYPE_MANAGER,
+                      taggedStores: _selectedStore);
+
+                  await FireStoreService.instance.createManager(model);
+                  setState(() {
+                    _nameCtrl.text = '';
+                    _emailCtrl.text = '';
+                  });
+                }
+              },
               child: Text('Create'),
             ),
             SizedBox(
@@ -277,10 +298,9 @@ class _ManagersScreenState extends State<ManagersScreen> {
                                   SizedBox(
                                     width: defaultPadding,
                                   ),
-                                  IconButton(
-                                    onPressed: () {},
-                                    color: Colors.orange,
-                                    icon: Icon(Icons.block),
+                                  Switch(
+                                    value: i % 2 == 0,
+                                    onChanged: (value) {},
                                   ),
                                   SizedBox(
                                     width: defaultPadding,
