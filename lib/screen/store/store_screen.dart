@@ -1,12 +1,21 @@
-import 'package:dropdown_below/dropdown_below.dart';
+import 'dart:html';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fastcheque_admin/model/store_model.dart';
+import 'package:fastcheque_admin/service/firestore_service.dart';
 import 'package:fastcheque_admin/utils/color.dart';
 import 'package:fastcheque_admin/utils/constants.dart';
-import 'package:fastcheque_admin/utils/static_data.dart';
+import 'package:fastcheque_admin/utils/database_constants.dart';
+import 'package:fastcheque_admin/utils/validation.dart';
 import 'package:fastcheque_admin/widgets/custom_text_field.dart';
 import 'package:fastcheque_admin/widgets/header.dart';
 import 'package:fastcheque_admin/widgets/responsive.dart';
+import 'package:firebase/firebase.dart';
+import 'package:firebase/firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase/firebase.dart' as fb;
+import 'package:sn_progress_dialog/progress_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StoreScreen extends StatefulWidget {
   const StoreScreen({Key? key}) : super(key: key);
@@ -16,9 +25,122 @@ class StoreScreen extends StatefulWidget {
 }
 
 class _StoreScreenState extends State<StoreScreen> {
-  TextEditingController _nameCtrl = TextEditingController();
-  TextEditingController _emailCtrl = TextEditingController();
+  TextEditingController _chequeSequenceCtrl = TextEditingController();
+  TextEditingController _printerEmailCtrl = TextEditingController();
+  TextEditingController _businessEmailCtrl = TextEditingController();
+  TextEditingController _routingAccNumberCtrl = TextEditingController();
+  TextEditingController _bankAccNumberCtrl = TextEditingController();
+  TextEditingController _bankNameCtrl = TextEditingController();
+  TextEditingController _businessNameCtrl = TextEditingController();
+  TextEditingController _businessAddressCtrl = TextEditingController();
+  TextEditingController _businessPhoneCtrl = TextEditingController();
+
   TextEditingController _searchCtrl = TextEditingController();
+  bool _isUpdateFormActive = false;
+  String _currentEditedStoreID = '';
+  String _bankLogoLink = '';
+  String _businessLogoLink = '';
+
+  final int UPLOAD_BANK_LOGO = 1;
+  final int UPLOAD_BUSINESS_LOGO = 2;
+  List<StoreModel> _allStoreLocally = [];
+
+  selectImageFile(int uploadType) async {
+    FileUploadInputElement uploadInput = FileUploadInputElement();
+    uploadInput.click();
+
+    uploadInput.onChange.listen(
+      (changeEvent) {
+        final file = uploadInput.files!.first;
+        final reader = FileReader();
+
+        reader.readAsDataUrl(file);
+
+        reader.onLoadEnd.listen(
+          // After file finiesh reading and loading, it will be uploaded to firebase storage
+          (loadEndEvent) async {
+            uploadToFirebaseStorage(file, uploadType);
+          },
+        );
+      },
+    );
+  }
+
+  uploadToFirebaseStorage(File imageFile, int uploadType) async {
+    final filePath = 'STORE/${DateTime.now()}_${imageFile.name}';
+    fb.UploadTask _uploadTask = fb
+        .storage()
+        .refFromURL('gs://fastcheque-eadf9.appspot.com')
+        .child(filePath)
+        .put(imageFile);
+
+    ProgressDialog pr = ProgressDialog(context: context);
+
+    pr.show(
+        max: 100,
+        msg: 'Uploading...',
+        borderRadius: 2,
+        elevation: 10,
+        backgroundColor: secondaryColor,
+        msgColor: Colors.white,
+        barrierDismissible: false);
+
+    await _uploadTask.future.then((UploadTaskSnapshot snapshot) {
+      Future.delayed(Duration(seconds: 1)).then((value) {
+        pr.close();
+        snapshot.ref.getDownloadURL().then((dynamic uri) {
+          // uri is the link to the uploaded file
+          setState(() {
+            print('Uploaded link : ${uri.toString()}');
+            if (uploadType == UPLOAD_BANK_LOGO)
+              _bankLogoLink = uri.toString();
+            else
+              _businessLogoLink = uri.toString();
+          });
+        });
+      });
+    });
+  }
+
+  Future<void> loadAllStore() async {
+    FireStoreService.instance.readAllStore().then((list) {
+      _allStoreLocally.addAll(list);
+      setState(() {});
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _searchCtrl.addListener(() async {
+      _allStoreLocally.clear();
+      await FirebaseFirestore.instance
+          .collection(DatabaseConstants.STORE_COLLECTION)
+          .snapshots()
+          .listen((event) {
+        event.docs.forEach((element) {
+          StoreModel model = StoreModel.fromMap(element.data());
+          if (_searchCtrl.text.isEmpty)
+            _allStoreLocally.add(model);
+          else {
+            if (model.businessName
+                    .toLowerCase()
+                    .contains(_searchCtrl.text.toLowerCase()) ||
+                model.printerEmail
+                    .toLowerCase()
+                    .contains(_searchCtrl.text.toLowerCase()) ||
+                model.chequeSequenceNumber
+                    .toLowerCase()
+                    .contains(_searchCtrl.text.toLowerCase()))
+              _allStoreLocally.add(model);
+          }
+        });
+        setState(() {});
+      });
+    });
+    loadAllStore();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,31 +162,269 @@ class _StoreScreenState extends State<StoreScreen> {
               height: defaultPadding,
             ),
             GridView(
+              padding: EdgeInsets.only(top: 2),
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: Responsive.isMobile(context) ? 1 : 2,
+                  crossAxisCount: Responsive.isMobile(context) ? 2 : 3,
                   mainAxisSpacing: defaultPadding,
                   crossAxisSpacing: defaultPadding,
                   mainAxisExtent: 50,
                   childAspectRatio: 3),
               children: [
                 CustomTextField(
-                  nameCtrl: _nameCtrl,
-                  hint: 'Name',
+                  nameCtrl: _chequeSequenceCtrl,
+                  hint: 'Cheque Sequence (3 Char)',
                 ),
                 CustomTextField(
-                  nameCtrl: _emailCtrl,
-                  hint: 'Email',
+                  nameCtrl: _printerEmailCtrl,
+                  hint: '* Printer Email',
+                ),
+                CustomTextField(
+                  nameCtrl: _businessEmailCtrl,
+                  hint: 'Business Email',
+                ),
+                CustomTextField(
+                  nameCtrl: _businessNameCtrl,
+                  hint: 'Business Name',
+                ),
+                CustomTextField(
+                  nameCtrl: _businessAddressCtrl,
+                  hint: 'Business Address',
+                ),
+                CustomTextField(
+                  nameCtrl: _businessPhoneCtrl,
+                  hint: 'Business Phone',
+                ),
+                CustomTextField(
+                  nameCtrl: _routingAccNumberCtrl,
+                  hint: 'Routing Account number',
+                ),
+                CustomTextField(
+                  nameCtrl: _bankAccNumberCtrl,
+                  hint: 'Bank Account Number',
+                ),
+                CustomTextField(
+                  nameCtrl: _bankNameCtrl,
+                  hint: 'Bank Name',
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    if (_bankLogoLink.isNotEmpty)
+                      Expanded(
+                        flex: 1,
+                        child: InkWell(
+                          onTap: () => launch(_bankLogoLink),
+                          child: Image.network(
+                            _bankLogoLink,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    Expanded(
+                      flex: 5,
+                      child: InkWell(
+                        onTap: () => selectImageFile(UPLOAD_BANK_LOGO),
+                        child: Container(
+                          height: 50,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: _bankLogoLink.isEmpty
+                                ? secondaryColor
+                                : Colors.green,
+                            borderRadius: BorderRadius.circular(2),
+                            border: Border.all(color: Colors.green),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(_bankLogoLink.isEmpty
+                                  ? Icons.upload
+                                  : Icons.check_circle_outline),
+                              SizedBox(
+                                width: defaultPadding / 2,
+                              ),
+                              Text('Bank Logo'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    if (_businessLogoLink.isNotEmpty)
+                      Expanded(
+                        flex: 1,
+                        child: InkWell(
+                          onTap: () => launch(_businessLogoLink),
+                          child: Image.network(
+                            _businessLogoLink,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    Expanded(
+                      flex: 5,
+                      child: InkWell(
+                        onTap: () => selectImageFile(UPLOAD_BUSINESS_LOGO),
+                        child: Container(
+                          height: 50,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: _businessLogoLink.isEmpty
+                                ? secondaryColor
+                                : Colors.green,
+                            borderRadius: BorderRadius.circular(2),
+                            border: Border.all(color: Colors.green),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(_businessLogoLink.isEmpty
+                                  ? Icons.upload
+                                  : Icons.check_circle_outline),
+                              SizedBox(
+                                width: defaultPadding / 2,
+                              ),
+                              Text('Business Logo'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
             SizedBox(
               height: defaultPadding,
             ),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text('Create'),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    if (checkAllMandatoryFields([
+                          _printerEmailCtrl,
+                          _chequeSequenceCtrl,
+                          _routingAccNumberCtrl,
+                          _bankAccNumberCtrl,
+                          _bankNameCtrl,
+                          _businessNameCtrl,
+                          _businessAddressCtrl,
+                          _businessPhoneCtrl,
+                          _businessEmailCtrl,
+                        ]) &&
+                        validateChequeSequence(_chequeSequenceCtrl.text) &&
+                        checkAllEmptyString(
+                            [_bankLogoLink, _businessLogoLink]) &&
+                        checkValidEmail(_businessEmailCtrl.text) &&
+                        checkValidEmail(_printerEmailCtrl.text)) {
+                      FireStoreService.instance.createStore(
+                        StoreModel(
+                          id: '',
+                          chequeSequenceNumber: _chequeSequenceCtrl.text,
+                          printerEmail: _printerEmailCtrl.text,
+                          routingAccountNumber: _routingAccNumberCtrl.text,
+                          bankAccountNumber: _bankAccNumberCtrl.text,
+                          bankName: _bankNameCtrl.text,
+                          businessName: _businessNameCtrl.text,
+                          businessAddress: _businessAddressCtrl.text,
+                          businessPhone: _businessPhoneCtrl.text,
+                          bankLogoUrl: _bankLogoLink,
+                          businessLogoUrl: _businessLogoLink,
+                          businessEmail: _businessEmailCtrl.text,
+                        ),
+                      );
+                      _chequeSequenceCtrl.text = '';
+                      _printerEmailCtrl.text = '';
+                      _routingAccNumberCtrl.text = '';
+                      _bankAccNumberCtrl.text = '';
+                      _bankNameCtrl.text = '';
+                      _businessNameCtrl.text = '';
+                      _businessAddressCtrl.text = '';
+                      _businessPhoneCtrl.text = '';
+                      _businessEmailCtrl.text = '';
+                      _bankLogoLink = '';
+                      _businessLogoLink = '';
+                      _currentEditedStoreID = '';
+                      setState(() {});
+                    }
+                  },
+                  child: Text('Create'),
+                ),
+                SizedBox(
+                  width: defaultPadding,
+                ),
+                if (_isUpdateFormActive)
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (checkAllMandatoryFields([
+                            _printerEmailCtrl,
+                            _chequeSequenceCtrl,
+                            _routingAccNumberCtrl,
+                            _bankAccNumberCtrl,
+                            _bankNameCtrl,
+                            _businessNameCtrl,
+                            _businessAddressCtrl,
+                            _businessPhoneCtrl,
+                            _businessEmailCtrl
+                          ]) &&
+                          validateChequeSequence(_chequeSequenceCtrl.text) &&
+                          checkAllEmptyString([
+                            _bankLogoLink,
+                            _businessLogoLink,
+                            _currentEditedStoreID
+                          ]) &&
+                          checkValidEmail(_businessEmailCtrl.text) &&
+                          checkValidEmail(_printerEmailCtrl.text)) {
+                        FireStoreService.instance.updateStore(
+                          StoreModel(
+                            id: _currentEditedStoreID,
+                            chequeSequenceNumber: _chequeSequenceCtrl.text,
+                            printerEmail: _printerEmailCtrl.text,
+                            routingAccountNumber: _routingAccNumberCtrl.text,
+                            bankAccountNumber: _bankAccNumberCtrl.text,
+                            bankName: _bankNameCtrl.text,
+                            businessName: _businessNameCtrl.text,
+                            businessAddress: _businessAddressCtrl.text,
+                            businessPhone: _businessPhoneCtrl.text,
+                            bankLogoUrl: _bankLogoLink,
+                            businessLogoUrl: _businessLogoLink,
+                            businessEmail: _businessEmailCtrl.text,
+                          ),
+                        );
+                        _currentEditedStoreID = '';
+                        _chequeSequenceCtrl.text = '';
+                        _printerEmailCtrl.text = '';
+                        _routingAccNumberCtrl.text = '';
+                        _bankAccNumberCtrl.text = '';
+                        _bankNameCtrl.text = '';
+                        _businessNameCtrl.text = '';
+                        _businessAddressCtrl.text = '';
+                        _businessPhoneCtrl.text = '';
+                        _businessEmailCtrl.text = '';
+                        _bankLogoLink = '';
+                        _businessLogoLink = '';
+                        setState(() {
+                          _isUpdateFormActive = false;
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.deepOrangeAccent),
+                    child: Text('Update'),
+                  ),
+              ],
             ),
             SizedBox(
               height: defaultPadding * 2,
@@ -78,7 +438,8 @@ class _StoreScreenState extends State<StoreScreen> {
               decoration: InputDecoration(
                 fillColor: secondaryColor,
                 filled: true,
-                hintText: 'Search by name/email...',
+                hintText:
+                    'Search by Business name / printer email / cheque sequence...',
                 prefixIcon: Icon(Icons.search),
                 labelStyle: Theme.of(context).textTheme.subtitle1,
               ),
@@ -90,6 +451,7 @@ class _StoreScreenState extends State<StoreScreen> {
               scrollDirection: Axis.horizontal,
               child: Container(
                 width: 1150,
+                alignment: Alignment.center,
                 child: Table(
                   columnWidths: const <int, TableColumnWidth>{
                     0: FlexColumnWidth(),
@@ -105,19 +467,19 @@ class _StoreScreenState extends State<StoreScreen> {
                         TableCell(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text('Store ID'),
+                            child: Text('Business Name'),
                           ),
                         ),
                         TableCell(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text('Name'),
+                            child: Text('Cheque Sequence'),
                           ),
                         ),
                         TableCell(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text('Email'),
+                            child: Text('Printer Email'),
                           ),
                         ),
                         TableCell(
@@ -128,7 +490,7 @@ class _StoreScreenState extends State<StoreScreen> {
                         ),
                       ],
                     ),
-                    for (var i = 0; i < 10; i++) ...{
+                    for (StoreModel store in _allStoreLocally) ...{
                       TableRow(
                         decoration: BoxDecoration(
                           border: Border(
@@ -140,19 +502,19 @@ class _StoreScreenState extends State<StoreScreen> {
                           TableCell(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text('ST_000$i'),
+                              child: Text('${store.businessName}'),
                             ),
                           ),
                           TableCell(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text('Store name $i'),
+                              child: Text('${store.chequeSequenceNumber}'),
                             ),
                           ),
                           TableCell(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text('Store email $i'),
+                              child: Text('${store.printerEmail}'),
                             ),
                           ),
                           TableCell(
@@ -161,7 +523,76 @@ class _StoreScreenState extends State<StoreScreen> {
                               child: Row(
                                 children: [
                                   IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      _printerEmailCtrl.text =
+                                          store.printerEmail;
+                                      _chequeSequenceCtrl.text =
+                                          store.chequeSequenceNumber;
+                                      _routingAccNumberCtrl.text =
+                                          store.routingAccountNumber;
+                                      _bankAccNumberCtrl.text =
+                                          store.bankAccountNumber;
+                                      _bankNameCtrl.text = store.bankName;
+                                      _businessNameCtrl.text =
+                                          store.businessName;
+                                      _businessAddressCtrl.text =
+                                          store.businessAddress;
+                                      _businessPhoneCtrl.text =
+                                          store.businessPhone;
+                                      _businessLogoLink = store.businessLogoUrl;
+                                      _bankLogoLink = store.bankLogoUrl;
+                                      _businessEmailCtrl.text =
+                                          store.businessEmail;
+                                      setState(() {});
+                                    },
+                                    color: Colors.green,
+                                    icon: Icon(Icons.visibility),
+                                  ),
+                                  SizedBox(
+                                    width: defaultPadding,
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _currentEditedStoreID = store.id;
+                                        _isUpdateFormActive =
+                                            !_isUpdateFormActive;
+                                        if (_isUpdateFormActive) {
+                                          _printerEmailCtrl.text =
+                                              store.printerEmail;
+                                          _chequeSequenceCtrl.text =
+                                              store.chequeSequenceNumber;
+                                          _routingAccNumberCtrl.text =
+                                              store.routingAccountNumber;
+                                          _bankAccNumberCtrl.text =
+                                              store.bankAccountNumber;
+                                          _bankNameCtrl.text = store.bankName;
+                                          _businessNameCtrl.text =
+                                              store.businessName;
+                                          _businessAddressCtrl.text =
+                                              store.businessAddress;
+                                          _businessPhoneCtrl.text =
+                                              store.businessPhone;
+                                          _businessLogoLink =
+                                              store.businessLogoUrl;
+                                          _bankLogoLink = store.bankLogoUrl;
+                                          _businessEmailCtrl.text =
+                                              store.businessEmail;
+                                        } else {
+                                          _chequeSequenceCtrl.text = '';
+                                          _printerEmailCtrl.text = '';
+                                          _routingAccNumberCtrl.text = '';
+                                          _bankAccNumberCtrl.text = '';
+                                          _bankNameCtrl.text = '';
+                                          _businessNameCtrl.text = '';
+                                          _businessAddressCtrl.text = '';
+                                          _businessPhoneCtrl.text = '';
+                                          _businessEmailCtrl.text = '';
+                                          _bankLogoLink = '';
+                                          _businessLogoLink = '';
+                                        }
+                                      });
+                                    },
                                     color: Colors.blue,
                                     icon: Icon(Icons.edit),
                                   ),
@@ -169,7 +600,10 @@ class _StoreScreenState extends State<StoreScreen> {
                                     width: defaultPadding,
                                   ),
                                   IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      FireStoreService.instance
+                                          .deleteStore(store);
+                                    },
                                     color: Colors.red,
                                     icon: Icon(Icons.delete),
                                   ),

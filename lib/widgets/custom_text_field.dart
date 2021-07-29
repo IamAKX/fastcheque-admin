@@ -1,12 +1,16 @@
-import 'package:fastcheque_admin/utils/color.dart';
 import 'package:flutter/material.dart';
+
+import 'package:fastcheque_admin/utils/color.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController nameCtrl;
   final String hint;
 
-  const CustomTextField({Key? key, required this.nameCtrl, required this.hint})
-      : super(key: key);
+  const CustomTextField({
+    Key? key,
+    required this.nameCtrl,
+    required this.hint,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

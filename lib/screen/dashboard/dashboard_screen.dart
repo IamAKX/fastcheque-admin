@@ -5,7 +5,6 @@ import 'package:fastcheque_admin/utils/static_data.dart';
 import 'package:fastcheque_admin/widgets/header.dart';
 import 'package:fastcheque_admin/widgets/responsive.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -216,7 +215,7 @@ class MetricsCardGridView extends StatelessWidget {
                     color: DASHBOARD_METIC_LIST[index].color.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     DASHBOARD_METIC_LIST[index].svgSrc,
                     height: 10,
                     width: 10,

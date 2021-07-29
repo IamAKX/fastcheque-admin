@@ -1,5 +1,5 @@
 name: fastcheque_admin
-description: A new Flutter project.
+description: Fastcheque Admin Panel
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -23,16 +23,25 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cloud_firestore: ^2.4.0
   cupertino_icons: ^1.0.2
   dropdown_below: ^0.0.9
-  flutter_svg: ^0.22.0
+  firebase: ^9.0.1
+  firebase_storage: ^10.0.1
+  fluttertoast: ^8.0.7
   google_fonts: ^2.1.0
+  sn_progress_dialog: ^1.0.2
   url_launcher: ^6.0.9
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_native_splash: ^1.2.0
 
+flutter_native_splash:
+  image: assets/images/logo_256.png
+  color: "#212332"
+  web_image_mode: center
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 # The following section is specific to Flutter.

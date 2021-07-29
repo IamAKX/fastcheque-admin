@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({
@@ -29,7 +28,7 @@ class SideMenu extends StatelessWidget {
             ),
             DrawerMenu(
               title: 'Dashboard',
-              svgSrc: 'assets/svg/dashboard.svg',
+              svgSrc: 'assets/svg/dashboard.png',
               press: () {
                 navigateMenu(0);
                 if (Scaffold.of(context).isDrawerOpen) {
@@ -39,7 +38,7 @@ class SideMenu extends StatelessWidget {
             ),
             DrawerMenu(
               title: 'Transactions',
-              svgSrc: 'assets/svg/transfer.svg',
+              svgSrc: 'assets/svg/transfer.png',
               press: () {
                 navigateMenu(1);
                 if (Scaffold.of(context).isDrawerOpen) {
@@ -49,7 +48,7 @@ class SideMenu extends StatelessWidget {
             ),
             DrawerMenu(
               title: 'Users',
-              svgSrc: 'assets/svg/user.svg',
+              svgSrc: 'assets/svg/user.png',
               press: () {
                 navigateMenu(2);
                 if (Scaffold.of(context).isDrawerOpen) {
@@ -59,7 +58,7 @@ class SideMenu extends StatelessWidget {
             ),
             DrawerMenu(
               title: 'Managers',
-              svgSrc: 'assets/svg/manager.svg',
+              svgSrc: 'assets/svg/manager.png',
               press: () {
                 navigateMenu(3);
                 if (Scaffold.of(context).isDrawerOpen) {
@@ -69,7 +68,7 @@ class SideMenu extends StatelessWidget {
             ),
             DrawerMenu(
               title: 'Stores',
-              svgSrc: 'assets/svg/store.svg',
+              svgSrc: 'assets/svg/store.png',
               press: () {
                 navigateMenu(4);
                 if (Scaffold.of(context).isDrawerOpen) {
@@ -77,16 +76,16 @@ class SideMenu extends StatelessWidget {
                 }
               },
             ),
-            DrawerMenu(
-              title: 'Settings',
-              svgSrc: 'assets/svg/settings.svg',
-              press: () {
-                navigateMenu(0);
-                if (Scaffold.of(context).isDrawerOpen) {
-                  Navigator.of(context).pop();
-                }
-              },
-            )
+            // DrawerMenu(
+            //   title: 'Settings',
+            //   svgSrc: 'assets/svg/settings.png',
+            //   press: () {
+            //     navigateMenu(0);
+            //     if (Scaffold.of(context).isDrawerOpen) {
+            //       Navigator.of(context).pop();
+            //     }
+            //   },
+            // )
           ],
         ),
       ),
@@ -108,7 +107,7 @@ class DrawerMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       horizontalTitleGap: 0,
-      leading: SvgPicture.asset(
+      leading: Image.asset(
         svgSrc,
         color: Colors.white54,
         height: 16,
