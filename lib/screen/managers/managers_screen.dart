@@ -187,6 +187,7 @@ class _ManagersScreenState extends State<ManagersScreen> {
                     checkValidEmail(_emailCtrl.text)) {
                   ManagerModel model = ManagerModel(
                       id: '',
+                      uid: '',
                       name: _nameCtrl.text,
                       email: _emailCtrl.text,
                       isProfileActive: true,
@@ -351,22 +352,22 @@ class _ManagersScreenState extends State<ManagersScreen> {
                                       });
                                     },
                                   ),
-                                  SizedBox(
-                                    width: defaultPadding,
-                                  ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      await FireStoreService.instance
-                                          .deleteManager(manager)
-                                          .then((value) {
-                                        setState(() {
-                                          loadAllManagers();
-                                        });
-                                      });
-                                    },
-                                    color: Colors.red,
-                                    icon: Icon(Icons.person_remove_sharp),
-                                  ),
+                                  // SizedBox(
+                                  //   width: defaultPadding,
+                                  // ),
+                                  // IconButton(
+                                  //   onPressed: () async {
+                                  //     await FireStoreService.instance
+                                  //         .deleteManager(manager)
+                                  //         .then((value) {
+                                  //       setState(() {
+                                  //         loadAllManagers();
+                                  //       });
+                                  //     });
+                                  //   },
+                                  //   color: Colors.red,
+                                  //   icon: Icon(Icons.person_remove_sharp),
+                                  // ),
                                 ],
                               ),
                             ),
@@ -419,6 +420,10 @@ class _ManagersScreenState extends State<ManagersScreen> {
           ManagerDetailRow(
             value: manager.id,
             name: 'User ID',
+          ),
+          ManagerDetailRow(
+            value: manager.uid,
+            name: 'Auth ID',
           ),
           ManagerDetailRow(
             value: manager.isPasswordTemporary ? 'Yes' : 'No',

@@ -32,6 +32,7 @@ dependencies:
   sn_progress_dialog: ^1.0.2
   url_launcher: ^6.0.9
   multi_select_flutter: ^4.0.0
+  firebase_auth: ^3.0.1
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fastcheque_admin/model/manager_model.dart';
 import 'package:fastcheque_admin/model/store_model.dart';
+import 'package:fastcheque_admin/service/authentication_service.dart';
 import 'package:fastcheque_admin/utils/database_constants.dart';
 import 'package:fastcheque_admin/utils/helper_methods.dart';
 
@@ -89,23 +90,20 @@ class FireStoreService {
       showToast('Select atlease 1 store');
       return;
     }
-    await _firestore
-        .collection(DatabaseConstants.USERS_COLLECTION)
-        .where('email', isEqualTo: model.email)
-        .get()
-        .then((querySnapshot) async {
-      if (querySnapshot.docs.isEmpty) {
-        DocumentReference document =
-            _firestore.collection(DatabaseConstants.USERS_COLLECTION).doc();
-        model.id = document.id;
-        await document.set(model.toMap()).then((value) {
-          showToast('User created successfully');
-          return;
-        });
-      } else {
-        showToast('User with ${model.email} is registered');
-      }
-    }).catchError((error) => showToast('Error : $error'));
+    await AuthenticationService.instance
+        .registerUserWithEmailAndPassword(_firestore, model);
+    // await _firestore
+    //     .collection(DatabaseConstants.USERS_COLLECTION)
+    //     .where('email', isEqualTo: model.email)
+    //     .get()
+    //     .then((querySnapshot) async {
+    //   if (querySnapshot.docs.isEmpty) {
+    //     await AuthenticationService.instance
+    //         .registerUserWithEmailAndPassword(_firestore, model);
+    //   } else {
+    //     showToast('User with ${model.email} is registered');
+    //   }
+    // }).catchError((error) => showToast('Error : $error'));
   }
 
   Future<List<ManagerModel>> readAllManagers() async {

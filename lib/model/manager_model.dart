@@ -6,6 +6,7 @@ import 'package:fastcheque_admin/model/store_model.dart';
 
 class ManagerModel {
   String id;
+  String uid;
   String name;
   String email;
   bool isProfileActive;
@@ -14,6 +15,7 @@ class ManagerModel {
   List<StoreModel> taggedStores;
   ManagerModel({
     required this.id,
+    required this.uid,
     required this.name,
     required this.email,
     required this.isProfileActive,
@@ -24,6 +26,7 @@ class ManagerModel {
 
   ManagerModel copyWith({
     String? id,
+    String? uid,
     String? name,
     String? email,
     bool? isProfileActive,
@@ -33,6 +36,7 @@ class ManagerModel {
   }) {
     return ManagerModel(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       name: name ?? this.name,
       email: email ?? this.email,
       isProfileActive: isProfileActive ?? this.isProfileActive,
@@ -45,25 +49,27 @@ class ManagerModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'uid': uid,
       'name': name,
       'email': email,
       'isProfileActive': isProfileActive,
       'isPasswordTemporary': isPasswordTemporary,
       'userType': userType,
-      'taggedStores': taggedStores.map((x) => x.toMap()).toList(),
+      'taggedStores': taggedStores?.map((x) => x.toMap())?.toList(),
     };
   }
 
   factory ManagerModel.fromMap(Map<String, dynamic> map) {
     return ManagerModel(
       id: map['id'],
+      uid: map['uid'],
       name: map['name'],
       email: map['email'],
       isProfileActive: map['isProfileActive'],
       isPasswordTemporary: map['isPasswordTemporary'],
       userType: map['userType'],
       taggedStores: List<StoreModel>.from(
-          map['taggedStores'].map((x) => StoreModel.fromMap(x))),
+          map['taggedStores']?.map((x) => StoreModel.fromMap(x))),
     );
   }
 
@@ -74,7 +80,7 @@ class ManagerModel {
 
   @override
   String toString() {
-    return 'ManagerModel(id: $id, name: $name, email: $email, isProfileActive: $isProfileActive, isPasswordTemporary: $isPasswordTemporary, userType: $userType, taggedStores: $taggedStores)';
+    return 'ManagerModel(id: $id, uid: $uid, name: $name, email: $email, isProfileActive: $isProfileActive, isPasswordTemporary: $isPasswordTemporary, userType: $userType, taggedStores: $taggedStores)';
   }
 
   @override
@@ -83,6 +89,7 @@ class ManagerModel {
 
     return other is ManagerModel &&
         other.id == id &&
+        other.uid == uid &&
         other.name == name &&
         other.email == email &&
         other.isProfileActive == isProfileActive &&
@@ -94,6 +101,7 @@ class ManagerModel {
   @override
   int get hashCode {
     return id.hashCode ^
+        uid.hashCode ^
         name.hashCode ^
         email.hashCode ^
         isProfileActive.hashCode ^
