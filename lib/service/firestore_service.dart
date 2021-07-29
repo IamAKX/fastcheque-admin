@@ -13,32 +13,83 @@ class FireStoreService {
   createStore(StoreModel model) async {
     _firestore
         .collection(DatabaseConstants.STORE_COLLECTION)
-        .where('email', isEqualTo: model.printerEmail)
         .get()
         .then((querySnapshot) {
-      if (querySnapshot.docs.isNotEmpty) {
-        showToast('Store with email ${model.printerEmail} is already present');
-      } else {
+      if (querySnapshot.docs.isEmpty) {
+        DocumentReference document =
+            _firestore.collection(DatabaseConstants.STORE_COLLECTION).doc();
+        model.id = document.id;
+        document.set(model.toMap()).then((value) {
+          showToast('Store added successfully');
+          return;
+        });
+      }
+      bool isInvalidEntry = false;
+
+      querySnapshot.docs.forEach((querySnapshot) {
+        StoreModel store = StoreModel.fromMap(querySnapshot.data());
+        if (store.printerEmail == model.printerEmail) {
+          isInvalidEntry = true;
+        }
+        if (store.chequeSequenceNumber == model.chequeSequenceNumber) {
+          isInvalidEntry = true;
+        }
+      });
+
+      if (!isInvalidEntry) {
         DocumentReference document =
             _firestore.collection(DatabaseConstants.STORE_COLLECTION).doc();
         model.id = document.id;
         document
             .set(model.toMap())
-            .then((value) => showToast('Store added successfully'))
-            .catchError((error) => showToast('Error : $error'));
-      }
-    });
+            .then((value) => showToast('Store added successfully'));
+      } else
+        showToast('Error : Identical buisness email or cheque sequence.');
+    }).catchError((error) => showToast('Error : $error'));
+  }
+
+  Future<List<StoreModel>> readAllStore() async {
+    List<StoreModel> list = [];
+
+    await _firestore
+        .collection(DatabaseConstants.STORE_COLLECTION)
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((querySnapshot) {
+        StoreModel store = StoreModel.fromMap(querySnapshot.data());
+        list.add(store);
+      });
+      return list;
+    }).catchError((error) => showToast('Error : $error'));
+    return list;
   }
 
   updateStore(StoreModel model) async {
     _firestore
         .collection(DatabaseConstants.STORE_COLLECTION)
-        .where('email', isEqualTo: model.printerEmail)
         .get()
         .then((querySnapshot) {
-      if (querySnapshot.docs.isNotEmpty) {
-        showToast('Store with email ${model.printerEmail} is already present');
-      } else {
+      if (querySnapshot.docs.isEmpty) {
+        DocumentReference document = _firestore
+            .collection(DatabaseConstants.STORE_COLLECTION)
+            .doc(model.id);
+
+        document.update(model.toMap()).then((value) {
+          showToast('Store updated successfully');
+          return;
+        });
+      }
+      bool isInvalidEntry = false;
+      querySnapshot.docs.forEach((querySnapshot) {
+        StoreModel store = StoreModel.fromMap(querySnapshot.data());
+        if (store.printerEmail == model.printerEmail) {
+          isInvalidEntry = true;
+        }
+        if (store.chequeSequenceNumber == model.chequeSequenceNumber) {
+          isInvalidEntry = true;
+        }
+      });
+      if (!isInvalidEntry) {
         DocumentReference document = _firestore
             .collection(DatabaseConstants.STORE_COLLECTION)
             .doc(model.id);
@@ -47,8 +98,9 @@ class FireStoreService {
             .update(model.toMap())
             .then((value) => showToast('Store updated successfully'))
             .catchError((error) => showToast('Error : $error'));
-      }
-    });
+      } else
+        showToast('Error : Identical buisness email or cheque sequence.');
+    }).catchError((error) => showToast('Error : $error'));
   }
 
   deleteStore(StoreModel model) {
@@ -62,5 +114,13 @@ class FireStoreService {
 
   Stream<QuerySnapshot> getStreamByCollectionName(String collection) {
     return _firestore.collection(collection).snapshots();
+  }
+
+  Stream<QuerySnapshot> getStreamByCollectionNameAndSearchString(
+      String collection, String searchString) {
+    return _firestore
+        .collection(collection)
+        .where('printerEmail', isEqualTo: searchString)
+        .snapshots();
   }
 }

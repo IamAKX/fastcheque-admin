@@ -29,3 +29,15 @@ bool checkAllEmptyString(List<String> list) {
   }
   return true;
 }
+
+bool validateChequeSequence(String sequence) {
+  if (sequence.isEmpty) {
+    showToast('Enter cheque seqence');
+    return false;
+  }
+  if (sequence.length != 3) {
+    showToast('Cheque seqence number should be 3 character Alphanumeric');
+    return false;
+  }
+  return true;
+}

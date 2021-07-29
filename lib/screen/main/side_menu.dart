@@ -77,16 +77,16 @@ class SideMenu extends StatelessWidget {
                 }
               },
             ),
-            DrawerMenu(
-              title: 'Settings',
-              svgSrc: 'assets/svg/settings.svg',
-              press: () {
-                navigateMenu(0);
-                if (Scaffold.of(context).isDrawerOpen) {
-                  Navigator.of(context).pop();
-                }
-              },
-            )
+            // DrawerMenu(
+            //   title: 'Settings',
+            //   svgSrc: 'assets/svg/settings.svg',
+            //   press: () {
+            //     navigateMenu(0);
+            //     if (Scaffold.of(context).isDrawerOpen) {
+            //       Navigator.of(context).pop();
+            //     }
+            //   },
+            // )
           ],
         ),
       ),
