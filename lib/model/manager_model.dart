@@ -11,6 +11,7 @@ class ManagerModel {
   String email;
   bool isProfileActive;
   bool isPasswordTemporary;
+  String firebaseFCMToken;
   String userType;
   List<StoreModel> taggedStores;
   ManagerModel({
@@ -20,6 +21,7 @@ class ManagerModel {
     required this.email,
     required this.isProfileActive,
     required this.isPasswordTemporary,
+    required this.firebaseFCMToken,
     required this.userType,
     required this.taggedStores,
   });
@@ -31,6 +33,7 @@ class ManagerModel {
     String? email,
     bool? isProfileActive,
     bool? isPasswordTemporary,
+    String? firebaseToken,
     String? userType,
     List<StoreModel>? taggedStores,
   }) {
@@ -41,6 +44,7 @@ class ManagerModel {
       email: email ?? this.email,
       isProfileActive: isProfileActive ?? this.isProfileActive,
       isPasswordTemporary: isPasswordTemporary ?? this.isPasswordTemporary,
+      firebaseFCMToken: firebaseToken ?? this.firebaseFCMToken,
       userType: userType ?? this.userType,
       taggedStores: taggedStores ?? this.taggedStores,
     );
@@ -54,6 +58,7 @@ class ManagerModel {
       'email': email,
       'isProfileActive': isProfileActive,
       'isPasswordTemporary': isPasswordTemporary,
+      'firebaseToken': firebaseFCMToken,
       'userType': userType,
       'taggedStores': taggedStores?.map((x) => x.toMap())?.toList(),
     };
@@ -67,6 +72,7 @@ class ManagerModel {
       email: map['email'],
       isProfileActive: map['isProfileActive'],
       isPasswordTemporary: map['isPasswordTemporary'],
+      firebaseFCMToken: map['firebaseToken'],
       userType: map['userType'],
       taggedStores: List<StoreModel>.from(
           map['taggedStores']?.map((x) => StoreModel.fromMap(x))),
@@ -80,7 +86,7 @@ class ManagerModel {
 
   @override
   String toString() {
-    return 'ManagerModel(id: $id, uid: $uid, name: $name, email: $email, isProfileActive: $isProfileActive, isPasswordTemporary: $isPasswordTemporary, userType: $userType, taggedStores: $taggedStores)';
+    return 'ManagerModel(id: $id, uid: $uid, name: $name, email: $email, isProfileActive: $isProfileActive, isPasswordTemporary: $isPasswordTemporary, firebaseToken: $firebaseFCMToken, userType: $userType, taggedStores: $taggedStores)';
   }
 
   @override
@@ -94,6 +100,7 @@ class ManagerModel {
         other.email == email &&
         other.isProfileActive == isProfileActive &&
         other.isPasswordTemporary == isPasswordTemporary &&
+        other.firebaseFCMToken == firebaseFCMToken &&
         other.userType == userType &&
         listEquals(other.taggedStores, taggedStores);
   }
@@ -106,6 +113,7 @@ class ManagerModel {
         email.hashCode ^
         isProfileActive.hashCode ^
         isPasswordTemporary.hashCode ^
+        firebaseFCMToken.hashCode ^
         userType.hashCode ^
         taggedStores.hashCode;
   }
