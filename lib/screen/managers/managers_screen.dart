@@ -188,6 +188,7 @@ class _ManagersScreenState extends State<ManagersScreen> {
                   ManagerModel model = ManagerModel(
                       id: '',
                       uid: '',
+                      signatureUrl: '',
                       firebaseFCMToken: '',
                       name: _nameCtrl.text,
                       email: _emailCtrl.text,

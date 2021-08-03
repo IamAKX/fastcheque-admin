@@ -9,6 +9,7 @@ class ManagerModel {
   String uid;
   String name;
   String email;
+  String signatureUrl;
   bool isProfileActive;
   bool isPasswordTemporary;
   String firebaseFCMToken;
@@ -19,6 +20,7 @@ class ManagerModel {
     required this.uid,
     required this.name,
     required this.email,
+    required this.signatureUrl,
     required this.isProfileActive,
     required this.isPasswordTemporary,
     required this.firebaseFCMToken,
@@ -31,9 +33,10 @@ class ManagerModel {
     String? uid,
     String? name,
     String? email,
+    String? signatureUrl,
     bool? isProfileActive,
     bool? isPasswordTemporary,
-    String? firebaseToken,
+    String? firebaseFCMToken,
     String? userType,
     List<StoreModel>? taggedStores,
   }) {
@@ -42,9 +45,10 @@ class ManagerModel {
       uid: uid ?? this.uid,
       name: name ?? this.name,
       email: email ?? this.email,
+      signatureUrl: signatureUrl ?? this.signatureUrl,
       isProfileActive: isProfileActive ?? this.isProfileActive,
       isPasswordTemporary: isPasswordTemporary ?? this.isPasswordTemporary,
-      firebaseFCMToken: firebaseToken ?? this.firebaseFCMToken,
+      firebaseFCMToken: firebaseFCMToken ?? this.firebaseFCMToken,
       userType: userType ?? this.userType,
       taggedStores: taggedStores ?? this.taggedStores,
     );
@@ -56,9 +60,10 @@ class ManagerModel {
       'uid': uid,
       'name': name,
       'email': email,
+      'signatureUrl': signatureUrl,
       'isProfileActive': isProfileActive,
       'isPasswordTemporary': isPasswordTemporary,
-      'firebaseToken': firebaseFCMToken,
+      'firebaseFCMToken': firebaseFCMToken,
       'userType': userType,
       'taggedStores': taggedStores?.map((x) => x.toMap())?.toList(),
     };
@@ -70,9 +75,10 @@ class ManagerModel {
       uid: map['uid'],
       name: map['name'],
       email: map['email'],
+      signatureUrl: map['signatureUrl'],
       isProfileActive: map['isProfileActive'],
       isPasswordTemporary: map['isPasswordTemporary'],
-      firebaseFCMToken: map['firebaseToken'],
+      firebaseFCMToken: map['firebaseFCMToken'],
       userType: map['userType'],
       taggedStores: List<StoreModel>.from(
           map['taggedStores']?.map((x) => StoreModel.fromMap(x))),
@@ -86,7 +92,7 @@ class ManagerModel {
 
   @override
   String toString() {
-    return 'ManagerModel(id: $id, uid: $uid, name: $name, email: $email, isProfileActive: $isProfileActive, isPasswordTemporary: $isPasswordTemporary, firebaseToken: $firebaseFCMToken, userType: $userType, taggedStores: $taggedStores)';
+    return 'ManagerModel(id: $id, uid: $uid, name: $name, email: $email, signatureUrl: $signatureUrl, isProfileActive: $isProfileActive, isPasswordTemporary: $isPasswordTemporary, firebaseFCMToken: $firebaseFCMToken, userType: $userType, taggedStores: $taggedStores)';
   }
 
   @override
@@ -98,6 +104,7 @@ class ManagerModel {
         other.uid == uid &&
         other.name == name &&
         other.email == email &&
+        other.signatureUrl == signatureUrl &&
         other.isProfileActive == isProfileActive &&
         other.isPasswordTemporary == isPasswordTemporary &&
         other.firebaseFCMToken == firebaseFCMToken &&
@@ -111,6 +118,7 @@ class ManagerModel {
         uid.hashCode ^
         name.hashCode ^
         email.hashCode ^
+        signatureUrl.hashCode ^
         isProfileActive.hashCode ^
         isPasswordTemporary.hashCode ^
         firebaseFCMToken.hashCode ^
