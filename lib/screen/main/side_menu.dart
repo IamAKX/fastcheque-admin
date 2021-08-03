@@ -47,7 +47,7 @@ class SideMenu extends StatelessWidget {
               },
             ),
             DrawerMenu(
-              title: 'Users',
+              title: 'Staff',
               svgSrc: 'assets/svg/user.png',
               press: () {
                 navigateMenu(2);

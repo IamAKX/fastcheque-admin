@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:html';
 
 import 'package:fastcheque_admin/model/manager_model.dart';
+import 'package:fastcheque_admin/model/staff_model.dart';
 import 'package:fastcheque_admin/model/store_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -49,4 +50,15 @@ getStoreDetailOfManager(ManagerModel manager) {
     seq.add(tmp);
   }
   return seq.join('\n');
+}
+
+getStoreDetailOfStaff(StaffModel staff) {
+  StoreModel model = staff.taggedStore;
+  String tmp = '';
+  tmp += 'Name    ${model.businessName}\n';
+  tmp += 'Email     ${model.businessEmail}\n';
+  tmp += 'Printer   ${model.printerEmail}\n';
+  tmp += 'Seq No   ${model.chequeSequenceNumber}\n';
+  tmp += 'Phone    ${model.businessPhone}\n';
+  return tmp;
 }

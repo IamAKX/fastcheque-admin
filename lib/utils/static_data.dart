@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 List<DashboardMetricsModel> DASHBOARD_METIC_LIST = [
   DashboardMetricsModel(
     color: Colors.green,
-    name: 'Users',
+    name: 'Staffs',
     svgSrc: 'assets/svg/user.png',
     count: 18,
   ),

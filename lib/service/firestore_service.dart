@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fastcheque_admin/model/manager_model.dart';
+import 'package:fastcheque_admin/model/staff_model.dart';
 import 'package:fastcheque_admin/model/store_model.dart';
 import 'package:fastcheque_admin/service/authentication_service.dart';
 import 'package:fastcheque_admin/utils/database_constants.dart';
@@ -92,18 +93,6 @@ class FireStoreService {
     }
     await AuthenticationService.instance
         .registerUserWithEmailAndPassword(_firestore, model);
-    // await _firestore
-    //     .collection(DatabaseConstants.USERS_COLLECTION)
-    //     .where('email', isEqualTo: model.email)
-    //     .get()
-    //     .then((querySnapshot) async {
-    //   if (querySnapshot.docs.isEmpty) {
-    //     await AuthenticationService.instance
-    //         .registerUserWithEmailAndPassword(_firestore, model);
-    //   } else {
-    //     showToast('User with ${model.email} is registered');
-    //   }
-    // }).catchError((error) => showToast('Error : $error'));
   }
 
   Future<List<ManagerModel>> readAllManagers() async {
@@ -139,5 +128,31 @@ class FireStoreService {
         .delete()
         .then((value) => showToast('Manager deleted successfully'))
         .catchError((error) => showToast('Error : $error'));
+  }
+
+  Future<List<StaffModel>> readAllStaffs() async {
+    List<StaffModel> list = [];
+
+    await _firestore
+        .collection(DatabaseConstants.USERS_COLLECTION)
+        .where('userType', isEqualTo: DatabaseConstants.USERS_TYPE_STAFF)
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((querySnapshot) {
+        StaffModel store = StaffModel.fromMap(querySnapshot.data());
+        list.add(store);
+      });
+      return list;
+    }).catchError((error) => showToast('Error : $error'));
+    return list;
+  }
+
+  Future<void> toggleStaffSuspension(StaffModel model, bool status) async {
+    DocumentReference document =
+        _firestore.collection(DatabaseConstants.USERS_COLLECTION).doc(model.id);
+
+    await document.update({'isProfileActive': status}).then((value) {
+      showToast('${model.name} is ${status ? 'activated' : 'deactivated'}');
+    }).catchError((error) => showToast('Error : $error'));
   }
 }
